@@ -1,5 +1,6 @@
 import { Container } from "semantic-ui-react";
 import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
+import ScrollToTop from "../common/util/ScrollToTop";
 import NavBar from "../../features/nav/NavBar/NavBar";
 import HomePage from "../../features/home/HomePage";
 import EventDashboard from "../../features/event/EventDashboard/EventDashboard";
@@ -13,6 +14,7 @@ import TestComponent from "../../features/testarea/TestComponent";
 const App = () => {
   return (
     <Router>
+      <ScrollToTop />
       <Switch>
         <Route exact path="/" component={HomePage} />
       </Switch>
