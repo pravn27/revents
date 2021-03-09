@@ -1,40 +1,27 @@
 import React, { Component } from "react";
+import { connect } from "react-redux";
 import { Segment, Form, Button } from "semantic-ui-react";
-
-const emptyEvent = {
-  title: "",
-  date: "",
-  city: "",
-  venue: "",
-  hostedBy: "",
-};
+import cuid from "cuid";
+import { createEvent, updateEvent } from "../eventActions";
 
 class EventForm extends Component {
   state = {
-    event: emptyEvent,
+    event: Object.assign({}, this.props.event),
   };
-
-  componentDidMount() {
-    const { selectedEvent } = this.props;
-    if (selectedEvent !== null) {
-      this.setState({ event: selectedEvent });
-    }
-  }
-
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.selectedEvent !== this.props.selectedEvent) {
-      this.setState({
-        event: nextProps.selectedEvent || emptyEvent,
-      });
-    }
-  }
 
   onFormSubmit = (evt) => {
     evt.preventDefault();
     if (this.state.event.id) {
-      this.props.handleUpdate(this.state.event);
+      this.props.updateEvent(this.state.event);
+      this.props.history.goBack();
     } else {
-      this.props.handleCreate(this.state.event);
+      const newEvent = {
+        ...this.state.event,
+        id: cuid(),
+        hostPhotoURL: "/assets/user.png",
+      };
+      this.props.createEvent(newEvent);
+      this.props.history.push("/events");
     }
   };
 
@@ -101,7 +88,7 @@ class EventForm extends Component {
           <Button positive type="submit">
             Submit
           </Button>
-          <Button type="button" onClick={handleClose}>
+          <Button type="button" onClick={this.props.history.goBack}>
             Cancel
           </Button>
         </Form>
@@ -110,4 +97,26 @@ class EventForm extends Component {
   }
 }
 
-export default EventForm;
+const mapStateToProps = (state, ownProps) => {
+  const eventId = ownProps.match.params.id;
+  let event = {
+    title: "",
+    date: "",
+    city: "",
+    venue: "",
+    hostedBy: "",
+  };
+  if (eventId && state.events.length > 0) {
+    event = state.events.filter((event) => event.id === eventId)[0];
+  }
+  return {
+    event,
+  };
+};
+
+const actions = {
+  createEvent,
+  updateEvent,
+};
+
+export default connect(mapStateToProps, actions)(EventForm);
